@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import sys
 import pandas as pd
 
 LEAGUES = ["Premier League", "UEFA Champions League", "League Cup", "Bundesliga",
