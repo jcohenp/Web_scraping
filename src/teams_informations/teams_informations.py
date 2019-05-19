@@ -1,3 +1,8 @@
+"""the teams_informations.py file get all basics informations on each team:
+    - Team summary
+    - Venue details
+    - Trophies won"""
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -7,6 +12,10 @@ LEAGUES = ["Premier League", "UEFA Champions League", "League Cup", "Bundesliga"
 
 
 def get_leagues(soup):
+    """Get all popular leagues
+        :param soup => parsing html
+        :return url leagues"""
+
     navbar = soup.find("div", {"id": "navbar"})
     select = navbar.find("select")
     options = select.find_all("option")
@@ -19,6 +28,9 @@ def get_leagues(soup):
 
 
 def get_team_in_rank_table(soup):
+    """On each league we have a team rank. This function get all team name and team link
+        :param soup => parsing html
+        :returns list teams name, teams link"""
     teams_name = []
     teams_link = []
     rank_table = soup.find("div", {"id": "page_competition_1_block_competition_tables_7-wrapper"})
@@ -34,6 +46,9 @@ def get_team_in_rank_table(soup):
 
 
 def get_team_info(soup):
+    """On each team page you have a section info, this function get all basics informations and return it as a dict
+      :param soup => parsing html
+      :returns info_section dict"""
     info = soup.find("div", {"class": "first-element"})
     dict_info = {}
     dl = info.find("dl")
@@ -45,7 +60,6 @@ def get_team_info(soup):
         if list_dt[i].text.strip() in match_elem:
             if list_dt[i].text == "Address":
                 address = list_dd[i].text.strip().split("\n")
-                print(address)
                 dict_address["Street"] = address[0].strip()
                 dict_address["District"] = address[1].strip()
                 dict_address["City"] = address[2].strip()
@@ -53,11 +67,13 @@ def get_team_info(soup):
             else:
                 dict_info[list_dt[i].text.strip()] = list_dd[i].text.strip()
 
-    info_section = {"Info": dict_info}
-    return info_section
+    return {"Info": dict_info}
 
 
 def get_team_venues_info(soup):
+    """On each team page you have a section Venues, this function get all basics informations and return it as a dict
+      :param soup => parsing html
+      :returns Venues dict"""
     venues = soup.find("div", {"class": "second-element"})
     dict_venue = {}
     dl = venues.find("dl")
@@ -70,6 +86,9 @@ def get_team_venues_info(soup):
 
 
 def get_team_trophies(soup):
+    """On each team page we have a trophies table and we can get all team's trophies
+          :param soup => parsing html
+          :return Trophies dict"""
     dict_trophies_by_league = {}
 
     trophies_table = soup.find("table", {"class": "table trophies"})
@@ -86,7 +105,8 @@ def get_team_trophies(soup):
 
 
 def parsing_teams_info():
-
+    """This function is the general function for getting all basics informations
+       :return a dict countries teams representing all teams summary sort by country"""
     countries_teams = {}
     general_website = requests.get("https://us.soccerway.com")
     soup = BeautifulSoup(general_website.text, 'lxml')
