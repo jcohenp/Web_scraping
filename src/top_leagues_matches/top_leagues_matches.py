@@ -1,8 +1,10 @@
-"""premier league matches"""
+"""matches per league"""
 import requests
 from bs4 import BeautifulSoup
 import sys
 import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.support.ui import Select
 
 LEAGUES = ["Premier League", "UEFA Champions League", "League Cup", "Bundesliga",
            "Super Cup", "Serie A", "La Liga", "Ligue 1", "Coupe de France"]
@@ -29,6 +31,19 @@ def get_game_weeks(league):
     :return:
     """
     # TODO: how to navigate between game weeks and what to return for the input of get_matches
+    # driver = webdriver.Firefox()
+    # driver.get('url')
+    #
+    # select = Select(driver.find_element_by_id('fruits01'))
+    #
+    # # select by visible text
+    # select.select_by_visible_text('Banana')
+    #
+    # # select by value
+    # select.select_by_value('1')
+
+
+
     navbar = league.find("div", {"id": "page_competition_1_block_competition_matches_summary_5-wrapper"})
     pagedropdown = navbar.find("div", {"class": "page-dropdown-container"})
     select = navbar.find("select")
