@@ -5,10 +5,29 @@
 
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
+import logging
 
 LEAGUES = ["Premier League", "UEFA Champions League", "League Cup", "Bundesliga",
            "Super Cup", "Serie A", "La Liga", "Ligue 1", "Coupe de France"]
+
+LOG_SCRAPING = "../log/soccer_scraping.log"
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+
+
+def setup_logger(name, log_file, level=logging.INFO):
+    """Function setup as many loggers as you want"""
+
+    handler = logging.FileHandler(log_file)
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
+
+
+logger = setup_logger('first_logger', LOG_SCRAPING)
 
 
 def get_leagues(soup):
@@ -66,7 +85,7 @@ def get_team_info(soup):
                 dict_info[list_dt[i].text.strip()] = dict_address
             else:
                 dict_info[list_dt[i].text.strip()] = list_dd[i].text.strip()
-
+    logger.info(dict_info)
     return {"Info": dict_info}
 
 
@@ -82,6 +101,7 @@ def get_team_venues_info(soup):
     for i in range(len(list_dt)):
         dict_venue[list_dt[i].text.strip()] = list_dd[i].text.strip()
 
+    logger.info(dict_venue)
     return {"Venue": dict_venue}
 
 
@@ -101,6 +121,7 @@ def get_team_trophies(soup):
                 if list_trophies_by_league[0] in LEAGUES:
                     dict_trophies_by_league[list_trophies_by_league[0]] = list_trophies_by_league[2]
 
+    logger.info(dict_trophies_by_league)
     return {"Trophies": dict_trophies_by_league}
 
 
@@ -111,8 +132,10 @@ def parsing_teams_info():
     general_website = requests.get("https://us.soccerway.com")
     soup = BeautifulSoup(general_website.text, 'lxml')
     list_leagues_url = get_leagues(soup)
+    logger.info("-----------getl all leagues---------")
     for league_url in list_leagues_url:
         teams_informations = {}
+        logger.info("Requesting on " + league_url)
         res_league = requests.get(league_url)
         soup = BeautifulSoup(res_league.text, 'lxml')
         teams_name, teams_links = get_team_in_rank_table(soup)
@@ -121,27 +144,21 @@ def parsing_teams_info():
         for team_link in teams_links:
 
             # new request
+            logger.info("get url on " + teams_name[current_team])
             request_team = requests.get("https://us.soccerway.com/" + team_link)
             country = team_link.split('/')[2].capitalize()
             if country == "Monaco":
                 country = "France"
 
             soup = BeautifulSoup(request_team.text, 'lxml')
+            logger.info("-----------GET INFO SECTION---------")
             info_section = get_team_info(soup)
+            logger.info("-----------GET VENUE SECTION---------")
             venues_section = get_team_venues_info(soup)
+            logger.info("-----------GET TROPHIES SECTION---------")
             trophies_section = get_team_trophies(soup)
             teams_informations[teams_name[current_team]] = [info_section, venues_section, trophies_section]
             countries_teams[country] = teams_informations
 
             current_team += 1
     return countries_teams
-
-
-def main():
-    countries_teams = parsing_teams_info()
-    df = pd.DataFrame(data=countries_teams)
-    print(df)
-
-
-if __name__ == '__main__':
-    main()
