@@ -3,12 +3,30 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.support.ui import Select
+from bs4 import BeautifulSoup
+import requests
+import json
+import urllib.request
 
-LEAGUES = ["Premier League", "UEFA Champions League", "League Cup", "Bundesliga",
-           "Super Cup", "Serie A", "La Liga", "Ligue 1", "Coupe de France"]
+
+##########
+
+    # for i in range(38):
+    #     data = json.load(urllib.request.urlopen(
+    #         'https://us.soccerway.com/a/block_competition_matches_summary?block_id'
+    #         '=page_competition_1_block_competition_matches_summary_5&callback_params={"page":"37",'
+    #         '"block_service_id":"competition_summary_block_competitionmatchessummary","round_id":"48730",'
+    #         '"outgroup":"","view":"1","competition_id":"8"}&action=changePage&params={"page":' + str(i) + '}'))
+    #
+    #     html = data["commands"][0]["parameters"]["content"]
+    #     soup = BeautifulSoup(html, 'lxml')
+    #     print(soup.prettify())
+
+#############
 WEBSITE = "https://us.soccerway.com"
+
+MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
+LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 38, 38, 38]
 
 
 def get_leagues(soup):
@@ -21,35 +39,27 @@ def get_leagues(soup):
     for i in range(len(options)):
         if options[i].text in match_leagues and "russia" not in options[i]["value"]:
             url_league.append("https://us.soccerway.com" + options[i]["value"])
+    print(url_league)
     return url_league
 
 
-def get_game_weeks(league):
-    """
-    gets a league in returns a list with all the game weeks (by url? because here its not urls. maybe not like this)
-    :param league:
-    :return:
-    """
-    # TODO: how to navigate between game weeks and what to return for the input of get_matches
-    # driver = webdriver.Firefox()
-    # driver.get('url')
+def get_game_weeks(soup, weeks, comp_id, the_r):
+    for week_mun in range(weeks):
+        data = json.load(urllib.request.urlopen(
+            'https://us.soccerway.com/a/block_competition_matches_summary?block_id'
+            '=page_competition_1_block_competition_matches_summary_5&callback_params={"page":"37",'
+            '"block_service_id":"competition_summary_block_competitionmatchessummary","round_id":"' + str(the_r) + '",'
+            '"outgroup":"","view":"1","competition_id":"' + str(comp_id) + '"}&action=changePage&params={"page":' + str(week_mun) + '}'))
+
+    #     data = BeautifulSoup(data["commands"][0]["parameters"]["content"], 'lxml')
+    #     data = data.find("table", {"class": "matches"})
     #
-    # select = Select(driver.find_element_by_id('fruits01'))
+    #     data = [get_match_info(tr) for tr in data.tbody.find_all('tr')]
     #
-    # # select by visible text
-    # select.select_by_visible_text('Banana')
+    #     frame = pd.DataFrame(data)
     #
-    # # select by value
-    # select.select_by_value('1')
-
-
-
-    navbar = league.find("div", {"id": "page_competition_1_block_competition_matches_summary_5-wrapper"})
-    pagedropdown = navbar.find("div", {"class": "page-dropdown-container"})
-    select = navbar.find("select")
-    options = select.find_all("option")
-
-    return options
+    #
+    # return options
 
 
 def get_matches(game_week):
@@ -73,8 +83,8 @@ def get_match_info(tr):
     team_a = tr.find('td', {"class": "team-a"})
     team_b = tr.find('td', {"class": "team-b"})
     score = tr.find('td', {"class": "score"})
-    print(team_a.text.strip() + " " + score.text.strip() + " " + team_b.text.strip())
-    return [day, date, team_a, team_b, score]
+
+    return [day.text.strip(), date.text.strip(), team_a.text.strip(), team_b.text.strip(), score.text.strip()]
 
 
 def get_all_matches_in_all_leagues():
@@ -86,12 +96,20 @@ def get_all_matches_in_all_leagues():
     soup = BeautifulSoup(general_website.text, 'lxml')
     list_leagues_url = get_leagues(soup)
 
+    weeks_index = 0
     for league_url in list_leagues_url:
+
+        comp_id = league_url.split('/')[-2]
         res_league = requests.get(league_url)
+
+        the_r = res_league.url.split('/')[-2]
         soup = BeautifulSoup(res_league.text, 'lxml')
-        game_weeks = get_game_weeks(soup)
+
+        game_weeks = get_game_weeks(soup, LIST_TOTAL_WEEKS_PER_LEAGUE[weeks_index], comp_id, the_r[1:])
         game_weeks_info = [get_matches(week) for week in game_weeks]
+
         leagues_info.append(game_weeks_info)
+        weeks_index += 1
     dt = pd.DataFrame(leagues_info)
     return dt
 

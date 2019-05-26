@@ -27,7 +27,7 @@ def get_players(league_url):
     """
 
     players_table = league_url.find("table", {"id": "page_competition_1_block_competition_playerstats_8_block_competition_playerstats_topscores_1_table"})
-    list_players = []
+    list_players = [["NAME", "TEAM", "GOALS", "FIRST GOALS"]]
     for tr in players_table.tbody.find_all('tr'):
         list_players.append(get_player_info(tr))
     return list_players
@@ -42,9 +42,8 @@ def get_player_info(tr):
     player = tr.find('td', {"class": "player"})
     team = tr.find('td', {"class": "team"})
     number_goals = tr.find('td', {"class": "number goals"})
-    #print(player.text.strip() + " " + team.text.strip() + " " + number_goals.text.strip())
-    #return [player, team, number_goals]
-    return[player.text.strip(), team.text.strip(), number_goals.text.strip()]
+    first_goals = tr.find('td', {"class": "number first-goals"})
+    return[player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]
 
 
 def get_all_top_players_info():
@@ -65,9 +64,8 @@ def get_all_top_players_info():
         res_league = requests.get(league_url[0])
         soup = BeautifulSoup(res_league.text, 'lxml')
         league_players = get_players(soup)
-        #player_info = [get_player_info(player) for player in league_players]
-        # players_info.append(player_info)
         dict_top_players_by_league.update({league_url[1]: league_players})
+
     dt = pd.DataFrame(dict_top_players_by_league)
     return dt
 
