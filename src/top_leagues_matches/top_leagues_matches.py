@@ -26,7 +26,7 @@ import urllib.request
 WEBSITE = "https://us.soccerway.com"
 
 MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
-LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 38, 38, 38]
+LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 37, 38, 38]
 
 
 def get_leagues(soup):
@@ -34,24 +34,30 @@ def get_leagues(soup):
     navbar = soup.find("div", {"id": "navbar"})
     select = navbar.find("select")
     options = select.find_all("option")
-    url_league = []
+    leagues = []
     match_leagues = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
     for i in range(len(options)):
         if options[i].text in match_leagues and "russia" not in options[i]["value"]:
-            url_league.append("https://us.soccerway.com" + options[i]["value"])
-    print(url_league)
-    return url_league
+            leagues.append(["https://us.soccerway.com" + options[i]["value"], options[i]["value"].split("/")[3]])
+
+    return leagues
 
 
-def get_game_weeks(soup, weeks, comp_id, the_r):
+def get_game_weeks(weeks, comp_id, the_r):
+    list_matches_weeks = []
     for week_mun in range(weeks):
+        print(week_mun)
         data = json.load(urllib.request.urlopen(
             'https://us.soccerway.com/a/block_competition_matches_summary?block_id'
             '=page_competition_1_block_competition_matches_summary_5&callback_params={"page":"37",'
             '"block_service_id":"competition_summary_block_competitionmatchessummary","round_id":"' + str(the_r) + '",'
             '"outgroup":"","view":"1","competition_id":"' + str(comp_id) + '"}&action=changePage&params={"page":' + str(week_mun) + '}'))
 
-    #     data = BeautifulSoup(data["commands"][0]["parameters"]["content"], 'lxml')
+        print("comp_id" + str(comp_id))
+        print("r: " + str(the_r))
+        list_matches_weeks.append(BeautifulSoup(data["commands"][0]["parameters"]["content"], "lxml"))
+
+    return list_matches_weeks
     #     data = data.find("table", {"class": "matches"})
     #
     #     data = [get_match_info(tr) for tr in data.tbody.find_all('tr')]
@@ -68,8 +74,11 @@ def get_matches(game_week):
     :param game_week:
     :return:
     """
-    matches_table = game_week.find("div", {"id": "page_competition_1_block_competition_matches_summary_5-wrapper"})
-    return [get_match_info(tr) for tr in matches_table.tbody.find_all('tr')]
+    list_matches_weeks = []
+    #matches_table = game_week.find("div", {"id": "page_competition_1_block_competition_matches_summary_5-wrapper"})
+    for each in game_week:
+        list_matches_weeks.append([get_match_info(tr) for tr in each.tbody.find_all('tr')])
+    return list_matches_weeks
 
 
 def get_match_info(tr):
@@ -97,18 +106,20 @@ def get_all_matches_in_all_leagues():
     list_leagues_url = get_leagues(soup)
 
     weeks_index = 0
+    dict_leagues_info = {}
+
     for league_url in list_leagues_url:
 
-        comp_id = league_url.split('/')[-2]
-        res_league = requests.get(league_url)
+        comp_id = league_url[0].split('/')[-2]
+        res_league = requests.get(league_url[0])
 
         the_r = res_league.url.split('/')[-2]
-        soup = BeautifulSoup(res_league.text, 'lxml')
+        #soup = BeautifulSoup(res_league.text, 'lxml')
 
-        game_weeks = get_game_weeks(soup, LIST_TOTAL_WEEKS_PER_LEAGUE[weeks_index], comp_id, the_r[1:])
-        game_weeks_info = [get_matches(week) for week in game_weeks]
-
-        leagues_info.append(game_weeks_info)
+        game_weeks = get_game_weeks(LIST_TOTAL_WEEKS_PER_LEAGUE[weeks_index], comp_id, the_r[1:])
+        list_game_weeks_info = [get_matches(week) for week in game_weeks]
+        dict_leagues_info[league_url[1]] = list_game_weeks_info
+        #leagues_info.append(game_weeks_info)
         weeks_index += 1
     dt = pd.DataFrame(leagues_info)
     return dt
