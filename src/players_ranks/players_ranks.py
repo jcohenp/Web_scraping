@@ -4,7 +4,8 @@ import sys
 import pandas as pd
 
 WEBSITE = "https://us.soccerway.com"
-
+LEAGUE_NAME = 1
+LEAGUE_URL = 0
 
 def get_leagues(soup):
     # TODO: delete this function and use the one in teams_information.py after merging
@@ -21,11 +22,10 @@ def get_leagues(soup):
 
 def get_players(league_url):
     """
-
-    :param league_url:
-    :return: list_player
+    gets a league and returns the top players stats
+    :param league_url: a specific league
+    :return: list_players: a list with all the relevant info of the top players in the league
     """
-
     players_table = league_url.find("table", {"id": "page_competition_1_block_competition_playerstats_8_block_competition_playerstats_topscores_1_table"})
     list_players = [["NAME", "TEAM", "GOALS", "FIRST GOALS"]]
     for tr in players_table.tbody.find_all('tr'):
@@ -35,9 +35,9 @@ def get_players(league_url):
 
 def get_player_info(tr):
     """
-
-    :param tr:
-    :return:
+    take a player and get the stats of that player
+    :param tr: a line in players table
+    :return: the relevant information on that player
     """
     player = tr.find('td', {"class": "player"})
     team = tr.find('td', {"class": "team"})
@@ -48,10 +48,9 @@ def get_player_info(tr):
 
 def get_all_top_players_info():
     """
-
-    :return:
+    goes over the top five leagues
+    :return: data from that contains each league and the stat of its top players
     """
-    players_info = []
     general_website = requests.get(WEBSITE)
     if general_website.status_code != 200:
         sys.stderr.write("enable to join the web site")
@@ -61,10 +60,10 @@ def get_all_top_players_info():
 
     dict_top_players_by_league = {}
     for league_url in list_leagues_url:
-        res_league = requests.get(league_url[0])
+        res_league = requests.get(league_url[LEAGUE_URL])
         soup = BeautifulSoup(res_league.text, 'lxml')
         league_players = get_players(soup)
-        dict_top_players_by_league.update({league_url[1]: league_players})
+        dict_top_players_by_league.update({league_url[LEAGUE_NAME]: league_players})
 
     dt = pd.DataFrame(dict_top_players_by_league)
     return dt
