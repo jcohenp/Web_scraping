@@ -107,14 +107,6 @@ def get_all_matches_in_all_leagues():
         dict_leagues_info[league_url[LEAGUE_NAME]] = list_game_weeks_info
         weeks_index += 1
 
-    dt = pd.DataFrame(leagues_info)
-    print(dt)
-    return dt
-
-
-def main():
-    get_all_matches_in_all_leagues()
-
-
-if __name__ == '__main__':
-    main()
+    #dt = pd.DataFrame(leagues_info)
+    #print(dt)
+    return dict_leagues_info

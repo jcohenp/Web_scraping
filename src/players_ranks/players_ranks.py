@@ -7,6 +7,7 @@ WEBSITE = "https://us.soccerway.com"
 LEAGUE_NAME = 1
 LEAGUE_URL = 0
 
+
 def get_leagues(soup):
     # TODO: delete this function and use the one in teams_information.py after merging
     navbar = soup.find("div", {"id": "navbar"})
@@ -63,15 +64,7 @@ def get_all_top_players_info():
         res_league = requests.get(league_url[LEAGUE_URL])
         soup = BeautifulSoup(res_league.text, 'lxml')
         league_players = get_players(soup)
-        dict_top_players_by_league.update({league_url[LEAGUE_NAME]: league_players})
+        dict_top_players_by_league[league_url[LEAGUE_NAME]] = league_players
 
-    dt = pd.DataFrame(dict_top_players_by_league)
-    return dt
-
-
-def main():
-    print(get_all_top_players_info())
-
-
-if __name__ == '__main__':
-    main()
+    #dt = pd.DataFrame(dict_top_players_by_league)
+    return dict_top_players_by_league

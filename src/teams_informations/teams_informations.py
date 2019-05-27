@@ -135,13 +135,3 @@ def parsing_teams_info():
 
             current_team += 1
     return countries_teams
-
-
-def main():
-    countries_teams = parsing_teams_info()
-    df = pd.DataFrame(data=countries_teams)
-    print(df)
-
-
-if __name__ == '__main__':
-    main()
