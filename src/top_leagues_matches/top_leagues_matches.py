@@ -9,24 +9,13 @@ import json
 import urllib.request
 
 
-##########
-
-    # for i in range(38):
-    #     data = json.load(urllib.request.urlopen(
-    #         'https://us.soccerway.com/a/block_competition_matches_summary?block_id'
-    #         '=page_competition_1_block_competition_matches_summary_5&callback_params={"page":"37",'
-    #         '"block_service_id":"competition_summary_block_competitionmatchessummary","round_id":"48730",'
-    #         '"outgroup":"","view":"1","competition_id":"8"}&action=changePage&params={"page":' + str(i) + '}'))
-    #
-    #     html = data["commands"][0]["parameters"]["content"]
-    #     soup = BeautifulSoup(html, 'lxml')
-    #     print(soup.prettify())
-
-#############
 WEBSITE = "https://us.soccerway.com"
-
 MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
 LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 37, 38, 38]
+COMP_ID = -2
+THE_R = -2
+LEAGUE_NAME = 1
+LEAGUE_URL = 0
 
 
 def get_leagues(soup):
@@ -44,48 +33,46 @@ def get_leagues(soup):
 
 
 def get_game_weeks(weeks, comp_id, the_r):
+    """
+    gives you all the game weeks in a specific league league
+    :param weeks: number of game weeks in that league
+    :param comp_id: the competition id to put in the url
+    :param the_r: the league number in soccerway
+    :return: list_matches_week: all the matches in that league divide by weeks
+    """
     list_matches_weeks = []
     for week_mun in range(weeks):
-        print(week_mun)
+        # print(week_mun)
         data = json.load(urllib.request.urlopen(
             'https://us.soccerway.com/a/block_competition_matches_summary?block_id'
             '=page_competition_1_block_competition_matches_summary_5&callback_params={"page":"37",'
             '"block_service_id":"competition_summary_block_competitionmatchessummary","round_id":"' + str(the_r) + '",'
             '"outgroup":"","view":"1","competition_id":"' + str(comp_id) + '"}&action=changePage&params={"page":' + str(week_mun) + '}'))
 
-        print("comp_id" + str(comp_id))
-        print("r: " + str(the_r))
+        # print("comp_id" + str(comp_id))
+        # print("r: " + str(the_r))
         list_matches_weeks.append(BeautifulSoup(data["commands"][0]["parameters"]["content"], "lxml"))
 
     return list_matches_weeks
-    #     data = data.find("table", {"class": "matches"})
-    #
-    #     data = [get_match_info(tr) for tr in data.tbody.find_all('tr')]
-    #
-    #     frame = pd.DataFrame(data)
-    #
-    #
-    # return options
 
 
 def get_matches(game_week):
     """
-
-    :param game_week:
-    :return:
+    takes a game week table and gets you all the matched who were played (rows in the table)
+    :param game_week: a specific game week table
+    :return: list_matches_week: a list of all the games in that week
     """
-    list_matches_weeks = []
-    #matches_table = game_week.find("div", {"id": "page_competition_1_block_competition_matches_summary_5-wrapper"})
+    list_matches_week = []
     for each in game_week:
-        list_matches_weeks.append([get_match_info(tr) for tr in each.tbody.find_all('tr')])
-    return list_matches_weeks
+        list_matches_week.append([get_match_info(tr) for tr in each.tbody.find_all('tr')])
+    return list_matches_week
 
 
 def get_match_info(tr):
     """
     gets a line (match) and takes the relevant data
-    :param tr:
-    :return:
+    :param tr: a line in the game week table
+    :return: information about that game: day, date, team-a teaam-b and score
     """
     day = tr.find('td', {"class": "day"})
     date = tr.find('td', {"class": "date"})
@@ -110,18 +97,18 @@ def get_all_matches_in_all_leagues():
 
     for league_url in list_leagues_url:
 
-        comp_id = league_url[0].split('/')[-2]
-        res_league = requests.get(league_url[0])
+        comp_id = league_url[LEAGUE_URL].split('/')[COMP_ID]
+        res_league = requests.get(league_url[LEAGUE_URL])
 
-        the_r = res_league.url.split('/')[-2]
-        #soup = BeautifulSoup(res_league.text, 'lxml')
+        the_r = res_league.url.split('/')[THE_R]
 
         game_weeks = get_game_weeks(LIST_TOTAL_WEEKS_PER_LEAGUE[weeks_index], comp_id, the_r[1:])
         list_game_weeks_info = [get_matches(week) for week in game_weeks]
-        dict_leagues_info[league_url[1]] = list_game_weeks_info
-        #leagues_info.append(game_weeks_info)
+        dict_leagues_info[league_url[LEAGUE_NAME]] = list_game_weeks_info
         weeks_index += 1
+
     dt = pd.DataFrame(leagues_info)
+    print(dt)
     return dt
 
 
