@@ -42,15 +42,12 @@ def get_game_weeks(weeks, comp_id, the_r):
     """
     list_matches_weeks = []
     for week_mun in range(weeks):
-        # print(week_mun)
         data = json.load(urllib.request.urlopen(
             'https://us.soccerway.com/a/block_competition_matches_summary?block_id'
             '=page_competition_1_block_competition_matches_summary_5&callback_params={"page":"37",'
             '"block_service_id":"competition_summary_block_competitionmatchessummary","round_id":"' + str(the_r) + '",'
             '"outgroup":"","view":"1","competition_id":"' + str(comp_id) + '"}&action=changePage&params={"page":' + str(week_mun) + '}'))
 
-        # print("comp_id" + str(comp_id))
-        # print("r: " + str(the_r))
         list_matches_weeks.append(BeautifulSoup(data["commands"][0]["parameters"]["content"], "lxml"))
 
     return list_matches_weeks
@@ -84,7 +81,6 @@ def get_match_info(tr):
 
 
 def get_all_matches_in_all_leagues():
-    leagues_info = []
     general_website = requests.get(WEBSITE)
     if general_website.status_code != 200:
         sys.stderr.write("enable to join the web site")
@@ -106,7 +102,4 @@ def get_all_matches_in_all_leagues():
         list_game_weeks_info = [get_matches(week) for week in game_weeks]
         dict_leagues_info[league_url[LEAGUE_NAME]] = list_game_weeks_info
         weeks_index += 1
-
-    #dt = pd.DataFrame(leagues_info)
-    #print(dt)
     return dict_leagues_info
