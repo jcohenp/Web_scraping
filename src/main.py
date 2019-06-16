@@ -1,6 +1,6 @@
-from Web_scraping.src.top_leagues_matches.top_leagues_matches import get_all_matches_in_all_leagues
-from Web_scraping.src.players_ranks.players_ranks import get_all_top_players_info
-from Web_scraping.src.teams_informations.teams_informations import parsing_teams_info
+from top_leagues_matches import get_all_matches_in_all_leagues
+from players_ranks import get_all_top_players_info
+from teams_informations import parsing_teams_info
 
 
 def main():

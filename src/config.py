@@ -18,7 +18,7 @@ def get_leagues(soup):
     select = navbar.find("select")
     options = select.find_all("option")
     url_league = []
-    for i in range(len(options)):
+    for i, opt in enumerate(options):
         if options[i].text in MATCHES_LEAGUES and "russia" not in options[i]["value"]:
             url_league.append(["https://us.soccerway.com" + options[i]["value"], options[i].text])
     return url_league

@@ -6,7 +6,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import Web_scraping.src.config as config
+import config
 
 # def get_leagues(soup):
 #     """Get all popular leagues
@@ -109,7 +109,7 @@ def parsing_teams_info():
     list_leagues_url = config.get_leagues(soup)
     for league_url in list_leagues_url:
         teams_informations = {}
-        res_league = requests.get(league_url)
+        res_league = requests.get(league_url[config.LEAGUE_URL])
         soup = BeautifulSoup(res_league.text, 'lxml')
         teams_name, teams_links = get_team_in_rank_table(soup)
 

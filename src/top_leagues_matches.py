@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import urllib.request
-import Web_scraping.src.config as config
+import config
 
 
 # WEBSITE = "https://us.soccerway.com"
@@ -81,6 +81,7 @@ def get_match_info(tr):
 
 def get_all_matches_in_all_leagues():
     general_website = requests.get(config.WEBSITE)
+
     if general_website.status_code != 200:
         sys.stderr.write("enable to join the web site")
         return -1
@@ -93,6 +94,8 @@ def get_all_matches_in_all_leagues():
     for league_url in list_leagues_url:
 
         comp_id = league_url[config.LEAGUE_URL].split('/')[config.COMP_ID]
+        league_url_last_season = league_url[0].rsplit("/", 2)
+        league_url[0] = league_url_last_season[0] + "/20182019/" + league_url_last_season[2]
         res_league = requests.get(league_url[config.LEAGUE_URL])
 
         the_r = res_league.url.split('/')[config.THE_R]
