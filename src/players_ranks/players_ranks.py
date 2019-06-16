@@ -1,24 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
+import Web_scraping.src.config as config
 import pandas as pd
 
-WEBSITE = "https://us.soccerway.com"
-LEAGUE_NAME = 1
-LEAGUE_URL = 0
+# WEBSITE = "https://us.soccerway.com"
+# LEAGUE_NAME = 1
+# LEAGUE_URL = 0
 
 
-def get_leagues(soup):
-    # TODO: delete this function and use the one in teams_information.py after merging
-    navbar = soup.find("div", {"id": "navbar"})
-    select = navbar.find("select")
-    options = select.find_all("option")
-    url_league = []
-    match_leagues = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
-    for i in range(len(options)):
-        if options[i].text in match_leagues and "russia" not in options[i]["value"]:
-            url_league.append(["https://us.soccerway.com" + options[i]["value"], options[i].text])
-    return url_league
+# def get_leagues(soup):
+#     navbar = soup.find("div", {"id": "navbar"})
+#     select = navbar.find("select")
+#     options = select.find_all("option")
+#     url_league = []
+#     for i in range(len(options)):
+#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
+#             url_league.append(["https://us.soccerway.com" + options[i]["value"], options[i].text])
+#     return url_league
 
 
 def get_players(league_url):
@@ -52,19 +51,18 @@ def get_all_top_players_info():
     goes over the top five leagues
     :return: data from that contains each league and the stat of its top players
     """
-    general_website = requests.get(WEBSITE)
+    general_website = requests.get(config.WEBSITE)
     if general_website.status_code != 200:
         sys.stderr.write("enable to join the web site")
         return -1
     soup = BeautifulSoup(general_website.text, 'lxml')
-    list_leagues_url = get_leagues(soup)
+    list_leagues_url = config.get_leagues(soup)
 
     dict_top_players_by_league = {}
     for league_url in list_leagues_url:
-        res_league = requests.get(league_url[LEAGUE_URL])
+        res_league = requests.get(league_url[config.LEAGUE_URL])
         soup = BeautifulSoup(res_league.text, 'lxml')
         league_players = get_players(soup)
-        dict_top_players_by_league[league_url[LEAGUE_NAME]] = league_players
+        dict_top_players_by_league[league_url[config.LEAGUE_NAME]] = league_players
 
-    #dt = pd.DataFrame(dict_top_players_by_league)
     return dict_top_players_by_league

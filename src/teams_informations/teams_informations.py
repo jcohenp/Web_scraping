@@ -6,25 +6,21 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import Web_scraping.src.config as config
 
-LEAGUES = ["Premier League", "UEFA Champions League", "League Cup", "Bundesliga",
-           "Super Cup", "Serie A", "La Liga", "Ligue 1", "Coupe de France"]
-
-
-def get_leagues(soup):
-    """Get all popular leagues
-        :param soup => parsing html
-        :return url leagues"""
-
-    navbar = soup.find("div", {"id": "navbar"})
-    select = navbar.find("select")
-    options = select.find_all("option")
-    url_league = []
-    match_leagues = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
-    for i in range(len(options)):
-        if options[i].text in match_leagues and "russia" not in options[i]["value"]:
-            url_league.append("https://us.soccerway.com" + options[i]["value"])
-    return url_league
+# def get_leagues(soup):
+#     """Get all popular leagues
+#         :param soup => parsing html
+#         :return url leagues"""
+#
+#     navbar = soup.find("div", {"id": "navbar"})
+#     select = navbar.find("select")
+#     options = select.find_all("option")
+#     url_league = []
+#     for i in range(len(options)):
+#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
+#             url_league.append("https://us.soccerway.com" + options[i]["value"])
+#     return url_league
 
 
 def get_team_in_rank_table(soup):
@@ -98,7 +94,7 @@ def get_team_trophies(soup):
             if tr.find_all("td"):
                 for td in tr.find_all("td"):
                     list_trophies_by_league.append(td.text)
-                if list_trophies_by_league[0] in LEAGUES:
+                if list_trophies_by_league[0] in config.LEAGUES:
                     dict_trophies_by_league[list_trophies_by_league[0]] = list_trophies_by_league[2]
 
     return {"Trophies": dict_trophies_by_league}
@@ -110,7 +106,7 @@ def parsing_teams_info():
     countries_teams = {}
     general_website = requests.get("https://us.soccerway.com")
     soup = BeautifulSoup(general_website.text, 'lxml')
-    list_leagues_url = get_leagues(soup)
+    list_leagues_url = config.get_leagues(soup)
     for league_url in list_leagues_url:
         teams_informations = {}
         res_league = requests.get(league_url)

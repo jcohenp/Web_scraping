@@ -7,29 +7,28 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import urllib.request
+import Web_scraping.src.config as config
 
 
-WEBSITE = "https://us.soccerway.com"
-MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
-LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 37, 38, 38]
-COMP_ID = -2
-THE_R = -2
-LEAGUE_NAME = 1
-LEAGUE_URL = 0
+# WEBSITE = "https://us.soccerway.com"
+# MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
+# LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 37, 38, 38]
+# COMP_ID = -2
+# THE_R = -2
+# LEAGUE_NAME = 1
+# LEAGUE_URL = 0
 
 
-def get_leagues(soup):
-    # TODO: delete this function and use the one in teams_information.py after merging
-    navbar = soup.find("div", {"id": "navbar"})
-    select = navbar.find("select")
-    options = select.find_all("option")
-    leagues = []
-    match_leagues = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
-    for i in range(len(options)):
-        if options[i].text in match_leagues and "russia" not in options[i]["value"]:
-            leagues.append(["https://us.soccerway.com" + options[i]["value"], options[i]["value"].split("/")[3]])
-
-    return leagues
+# def get_leagues(soup):
+#     navbar = soup.find("div", {"id": "navbar"})
+#     select = navbar.find("select")
+#     options = select.find_all("option")
+#     leagues = []
+#     for i in range(len(options)):
+#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
+#             leagues.append(["https://us.soccerway.com" + options[i]["value"], options[i]["value"].split("/")[3]])
+#
+#     return leagues
 
 
 def get_game_weeks(weeks, comp_id, the_r):
@@ -81,25 +80,25 @@ def get_match_info(tr):
 
 
 def get_all_matches_in_all_leagues():
-    general_website = requests.get(WEBSITE)
+    general_website = requests.get(config.WEBSITE)
     if general_website.status_code != 200:
         sys.stderr.write("enable to join the web site")
         return -1
     soup = BeautifulSoup(general_website.text, 'lxml')
-    list_leagues_url = get_leagues(soup)
+    list_leagues_url = config.get_leagues(soup)
 
     weeks_index = 0
     dict_leagues_info = {}
 
     for league_url in list_leagues_url:
 
-        comp_id = league_url[LEAGUE_URL].split('/')[COMP_ID]
-        res_league = requests.get(league_url[LEAGUE_URL])
+        comp_id = league_url[config.LEAGUE_URL].split('/')[config.COMP_ID]
+        res_league = requests.get(league_url[config.LEAGUE_URL])
 
-        the_r = res_league.url.split('/')[THE_R]
+        the_r = res_league.url.split('/')[config.THE_R]
 
-        game_weeks = get_game_weeks(LIST_TOTAL_WEEKS_PER_LEAGUE[weeks_index], comp_id, the_r[1:])
+        game_weeks = get_game_weeks(config.LIST_TOTAL_WEEKS_PER_LEAGUE[weeks_index], comp_id, the_r[1:])
         list_game_weeks_info = [get_matches(week) for week in game_weeks]
-        dict_leagues_info[league_url[LEAGUE_NAME]] = list_game_weeks_info
+        dict_leagues_info[league_url[config.LEAGUE_NAME]] = list_game_weeks_info
         weeks_index += 1
     return dict_leagues_info
