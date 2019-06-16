@@ -27,7 +27,7 @@ def get_players(league_url):
     :param league_url: a specific league
     :return: list_players: a list with all the relevant info of the top players in the league
     """
-    players_table = league_url.find("table", {"id": "page_competition_1_block_competition_playerstats_8_block_competition_playerstats_topscores_1_table"})
+    players_table = league_url.find("table", {"class": "playerstats table"})
     list_players = [["NAME", "TEAM", "GOALS", "FIRST GOALS"]]
     for tr in players_table.tbody.find_all('tr'):
         list_players.append(get_player_info(tr))
@@ -44,7 +44,7 @@ def get_player_info(tr):
     team = tr.find('td', {"class": "team"})
     number_goals = tr.find('td', {"class": "number goals"})
     first_goals = tr.find('td', {"class": "number first-goals"})
-    return[player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]
+    return [player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]
 
 
 def get_all_top_players_info():
@@ -61,7 +61,10 @@ def get_all_top_players_info():
 
     dict_top_players_by_league = {}
     for league_url in list_leagues_url:
+        league_url_last_season = league_url[0].rsplit("/", 2)
+        league_url[0] = league_url_last_season[0] + "/20182019/" + league_url_last_season[2]
         res_league = requests.get(league_url[LEAGUE_URL])
+
         soup = BeautifulSoup(res_league.text, 'lxml')
         league_players = get_players(soup)
         dict_top_players_by_league[league_url[LEAGUE_NAME]] = league_players

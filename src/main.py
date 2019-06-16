@@ -13,9 +13,6 @@ def main():
     get_all_matches = top_leagues_matches.get_all_matches_in_all_leagues()
     print(get_all_matches)
 
-    #df = pd.DataFrame(data=countries_teams)
-    #print(df)
-
 
 if __name__ == '__main__':
     main()
