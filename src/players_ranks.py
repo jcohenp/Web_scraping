@@ -4,20 +4,7 @@ import sys
 import config as config
 import pandas as pd
 
-# WEBSITE = "https://us.soccerway.com"
-# LEAGUE_NAME = 1
-# LEAGUE_URL = 0
 
-
-# def get_leagues(soup):
-#     navbar = soup.find("div", {"id": "navbar"})
-#     select = navbar.find("select")
-#     options = select.find_all("option")
-#     url_league = []
-#     for i in range(len(options)):
-#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
-#             url_league.append(["https://us.soccerway.com" + options[i]["value"], options[i].text])
-#     return url_league
 
 
 def get_players(league_url):
@@ -27,7 +14,8 @@ def get_players(league_url):
     :return: list_players: a list with all the relevant info of the top players in the league
     """
     players_table = league_url.find("table", {"class": "playerstats table"})
-    list_players = [["NAME", "TEAM", "GOALS", "FIRST GOALS"]]
+    # list_players = [["NAME", "TEAM", "GOALS", "FIRST GOALS"]]
+    list_players = []
     for tr in players_table.tbody.find_all('tr'):
         list_players.append(get_player_info(tr))
     return list_players
@@ -43,7 +31,12 @@ def get_player_info(tr):
     team = tr.find('td', {"class": "team"})
     number_goals = tr.find('td', {"class": "number goals"})
     first_goals = tr.find('td', {"class": "number first-goals"})
+    # df2 = pd.DataFrame([[player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]                        ], columns=['name', 'team', 'goals', 'first_goals'])
+    # top_players_pd.append(df2)
+    # print(top_players_pd)
     return [player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]
+    # top_players_pd.loc[i] = ['name' + str(i)] + list(randint(10, size=2))
+    # i += 1
 
 
 def get_all_top_players_info():
@@ -51,6 +44,7 @@ def get_all_top_players_info():
     goes over the top five leagues
     :return: data from that contains each league and the stat of its top players
     """
+
     general_website = requests.get(config.WEBSITE)
     if general_website.status_code != 200:
         sys.stderr.write("enable to join the web site")
@@ -68,4 +62,14 @@ def get_all_top_players_info():
         league_players = get_players(soup)
         dict_top_players_by_league[league_url[config.LEAGUE_NAME]] = league_players
 
-    return dict_top_players_by_league
+    return make_dict_to_df(dict_top_players_by_league)
+
+
+def make_dict_to_df(dict_top_players_by_league):
+    top_players_pd = pd.DataFrame()
+    for key, value in dict_top_players_by_league.items():
+        df1 = pd.DataFrame(value, columns=['name', 'team', 'goals', 'first_goals'])
+        top_players_pd = pd.concat([top_players_pd, df1], axis=0, join='outer', join_axes=None, ignore_index=True,
+                                   keys=None, levels=None,
+                                   names=None, verify_integrity=False, copy=True)
+    return top_players_pd
