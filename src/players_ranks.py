@@ -31,12 +31,7 @@ def get_player_info(tr):
     team = tr.find('td', {"class": "team"})
     number_goals = tr.find('td', {"class": "number goals"})
     first_goals = tr.find('td', {"class": "number first-goals"})
-    # df2 = pd.DataFrame([[player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]                        ], columns=['name', 'team', 'goals', 'first_goals'])
-    # top_players_pd.append(df2)
-    # print(top_players_pd)
     return [player.text.strip(), team.text.strip(), number_goals.text.strip(), first_goals.text.strip()]
-    # top_players_pd.loc[i] = ['name' + str(i)] + list(randint(10, size=2))
-    # i += 1
 
 
 def get_all_top_players_info():
@@ -66,6 +61,7 @@ def get_all_top_players_info():
 
 
 def make_dict_to_df(dict_top_players_by_league):
+    """make the dict of information about players to a dataframe"""
     top_players_pd = pd.DataFrame()
     for key, value in dict_top_players_by_league.items():
         df1 = pd.DataFrame(value, columns=['name', 'team', 'goals', 'first_goals'])

@@ -10,27 +10,6 @@ import urllib.request
 import config
 
 
-# WEBSITE = "https://us.soccerway.com"
-# MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 1"]
-# LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 37, 38, 38]
-# COMP_ID = -2
-# THE_R = -2
-# LEAGUE_NAME = 1
-# LEAGUE_URL = 0
-
-
-# def get_leagues(soup):
-#     navbar = soup.find("div", {"id": "navbar"})
-#     select = navbar.find("select")
-#     options = select.find_all("option")
-#     leagues = []
-#     for i in range(len(options)):
-#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
-#             leagues.append(["https://us.soccerway.com" + options[i]["value"], options[i]["value"].split("/")[3]])
-#
-#     return leagues
-
-
 def get_game_weeks(weeks, comp_id, the_r):
     """
     gives you all the game weeks in a specific league league

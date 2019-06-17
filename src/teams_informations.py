@@ -8,19 +8,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import config
 
-# def get_leagues(soup):
-#     """Get all popular leagues
-#         :param soup => parsing html
-#         :return url leagues"""
-#
-#     navbar = soup.find("div", {"id": "navbar"})
-#     select = navbar.find("select")
-#     options = select.find_all("option")
-#     url_league = []
-#     for i in range(len(options)):
-#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
-#             url_league.append("https://us.soccerway.com" + options[i]["value"])
-#     return url_league
 
 
 def get_team_in_rank_table(soup):
