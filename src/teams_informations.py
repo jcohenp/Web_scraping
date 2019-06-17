@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import config
 
+
 def get_team_in_rank_table(soup):
     """On each league we have a team rank. This function get all team name and team link
         :param soup => parsing html
