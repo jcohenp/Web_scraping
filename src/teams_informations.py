@@ -8,21 +8,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import config
 
-# def get_leagues(soup):
-#     """Get all popular leagues
-#         :param soup => parsing html
-#         :return url leagues"""
-#
-#     navbar = soup.find("div", {"id": "navbar"})
-#     select = navbar.find("select")
-#     options = select.find_all("option")
-#     url_league = []
-#     for i in range(len(options)):
-#         if options[i].text in config.MATCHES_LEAGUES and "russia" not in options[i]["value"]:
-#             url_league.append("https://us.soccerway.com" + options[i]["value"])
-#     return url_league
-
-
 def get_team_in_rank_table(soup):
     """On each league we have a team rank. This function get all team name and team link
         :param soup => parsing html
@@ -45,6 +30,7 @@ def get_team_info(soup):
     """On each team page you have a section info, this function get all basics informations and return it as a dict
       :param soup => parsing html
       :returns info_section dict"""
+
     info = soup.find("div", {"class": "first-element"})
     dict_info = {}
     dl = info.find("dl")
@@ -100,6 +86,31 @@ def get_team_trophies(soup):
     return {"Trophies": dict_trophies_by_league}
 
 
+def convert_to_dataframe(countries_teams):
+    list_team_info = []
+    list_trophies_info = []
+    team_id = 0
+    for country, teams in countries_teams.items():
+        for name_team, details_team in teams.items():
+            team_info = [team_id, country, name_team]
+            for info, info_detail in details_team[0].items():
+                team_info.append(info_detail["Founded"])
+                team_info.append(info_detail["Address"]["Street"] + ", " + info_detail["Address"]["City"])
+                if "E-mail" in info_detail:
+                    team_info.append(info_detail["E-mail"])
+            for venue, venue_info in details_team[1].items():
+                team_info.append(venue_info["Name"])
+                team_info.append(venue_info["Capacity"])
+            list_team_info.append(team_info)
+            for trophies, trophies_info in details_team[2].items():
+                dict_trophies = {"team_id": team_id}
+                for name_trophie, nb_trophies in trophies_info.items():
+                    dict_trophies[name_trophie] = nb_trophies
+                list_trophies_info.append(dict_trophies)
+            team_id += 1
+    return pd.DataFrame(list_team_info, columns=["id", "league", "name", "founded", "address", "email", "venue_name", "venue_capacity"]), pd.DataFrame(list_trophies_info).fillna(0)
+
+
 def parsing_teams_info():
     """This function is the general function for getting all basics informations
        :return a dict countries teams representing all teams summary sort by country"""
@@ -118,16 +129,14 @@ def parsing_teams_info():
 
             # new request
             request_team = requests.get("https://us.soccerway.com/" + team_link)
-            country = team_link.split('/')[2].capitalize()
-            if country == "Monaco":
-                country = "France"
 
             soup = BeautifulSoup(request_team.text, 'lxml')
             info_section = get_team_info(soup)
             venues_section = get_team_venues_info(soup)
             trophies_section = get_team_trophies(soup)
             teams_informations[teams_name[current_team]] = [info_section, venues_section, trophies_section]
-            countries_teams[country] = teams_informations
+            countries_teams[league_url[1]] = teams_informations
 
             current_team += 1
-    return countries_teams
+
+    return convert_to_dataframe(countries_teams)

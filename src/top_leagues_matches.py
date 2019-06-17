@@ -79,6 +79,15 @@ def get_match_info(tr):
     return [day.text.strip(), date.text.strip(), team_a.text.strip(), team_b.text.strip(), score.text.strip()]
 
 
+def convert_to_dataframe(dict_leagues_info):
+    all_matches = []
+    for league, matches in dict_leagues_info.items():
+        for week in matches:
+            for match in week[0]:
+                all_matches.append(match)
+    return pd.DataFrame(all_matches, columns=["day", "date", "team_a", "team_b", "score"])
+
+
 def get_all_matches_in_all_leagues():
     general_website = requests.get(config.WEBSITE)
 
@@ -104,4 +113,4 @@ def get_all_matches_in_all_leagues():
         list_game_weeks_info = [get_matches(week) for week in game_weeks]
         dict_leagues_info[league_url[config.LEAGUE_NAME]] = list_game_weeks_info
         weeks_index += 1
-    return dict_leagues_info
+    return convert_to_dataframe(dict_leagues_info)
