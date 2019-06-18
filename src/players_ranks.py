@@ -5,8 +5,6 @@ import config as config
 import pandas as pd
 
 
-
-
 def get_players(league_url):
     """
     gets a league and returns the top players stats

@@ -95,13 +95,14 @@ def convert_to_dataframe(countries_teams):
         for name_team, details_team in teams.items():
             team_info = [team_id, country, name_team]
             for info, info_detail in details_team[0].items():
-                team_info.append(info_detail["Founded"])
-                team_info.append(info_detail["Address"]["Street"] + ", " + info_detail["Address"]["City"])
-                if "E-mail" in info_detail:
-                    team_info.append(info_detail["E-mail"])
+                if "/" in info_detail.get("Founded"):
+                    info_detail["Founded"] = info_detail.get("Founded").split("/")[0]
+                team_info.append(info_detail.get("Founded"))
+                team_info.append(info_detail["Address"].get("Street") + ", " + info_detail["Address"].get("City"))
+                team_info.append(info_detail.get("E-mail"))
             for venue, venue_info in details_team[1].items():
-                team_info.append(venue_info["Name"])
-                team_info.append(venue_info["Capacity"])
+                team_info.append(venue_info.get("Name"))
+                team_info.append(venue_info.get("Capacity"))
             list_team_info.append(team_info)
             for trophies, trophies_info in details_team[2].items():
                 dict_trophies = {"team_id": team_id}
@@ -109,7 +110,8 @@ def convert_to_dataframe(countries_teams):
                     dict_trophies[name_trophie] = nb_trophies
                 list_trophies_info.append(dict_trophies)
             team_id += 1
-    return pd.DataFrame(list_team_info, columns=["id", "league", "name", "founded", "address", "email", "venue_name", "venue_capacity"]), pd.DataFrame(list_trophies_info).fillna(0)
+
+    return pd.DataFrame(list_team_info, columns=["team_id", "league", "name", "founded", "address", "email", "venue_name", "venue_capacity"]), pd.DataFrame(list_trophies_info).fillna(0)
 
 
 def parsing_teams_info():
