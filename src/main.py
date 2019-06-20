@@ -17,7 +17,7 @@ def top_players():
 
 def teams():
     """return the dataframe of all teams"""
-    teams_information, trophies = parsing_teams_info()
+    teams_information, trophies = parsing_teams_info(True)
     teams_information.fillna("Null").to_csv("../CSV/teams_information.csv", index=False, sep=',', encoding='utf-8')
     trophies.to_csv("../CSV/trophies.csv",  index=False, sep=',', encoding='utf-8')
     return teams_information, trophies
@@ -37,7 +37,7 @@ def all_tables():
     matches_info = matches()
 
     top_players_info.to_csv("../CSV/top_player_info.csv", index=False, sep=',', encoding='utf-8')
-    teams_information.to_csv("../CSV/teams_information.csv", index=False, sep=',', encoding='utf-8')
+    teams_information.fillna("Null").to_csv("../CSV/teams_information.csv", index=False, sep=',', encoding='utf-8')
     trophies.to_csv("../CSV/trophies.csv", index=False, sep=',', encoding='utf-8')
     matches_info.to_csv("../CSV/matches_info.csv", index=False, sep=',', encoding='utf-8')
 

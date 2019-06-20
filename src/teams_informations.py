@@ -87,7 +87,7 @@ def get_team_trophies(soup):
     return {"Trophies": dict_trophies_by_league}
 
 
-def convert_to_dataframe(countries_teams):
+def convert_to_dataframe(countries_teams, bool_data):
     list_team_info = []
     list_trophies_info = []
     team_id = 0
@@ -104,17 +104,24 @@ def convert_to_dataframe(countries_teams):
                 team_info.append(venue_info.get("Name"))
                 team_info.append(venue_info.get("Capacity"))
             list_team_info.append(team_info)
-            for trophies, trophies_info in details_team[2].items():
-                dict_trophies = {"team_id": team_id}
-                for name_trophie, nb_trophies in trophies_info.items():
-                    dict_trophies[name_trophie] = nb_trophies
-                list_trophies_info.append(dict_trophies)
-            team_id += 1
+            if bool_data:
+                for trophies, trophies_info in details_team[2].items():
+                    dict_trophies = {"team_id": team_id}
+                    for name_trophie, nb_trophies in trophies_info.items():
+                        dict_trophies[name_trophie] = nb_trophies
+                    list_trophies_info.append(dict_trophies)
+                team_id += 1
+    if bool_data:
+        return pd.DataFrame(list_team_info, columns=["team_id", "league", "name", "founded", "address", "email",
+                                                     "venue_name", "venue_capacity"]), \
+               pd.DataFrame(list_trophies_info).fillna(0)
 
-    return pd.DataFrame(list_team_info, columns=["team_id", "league", "name", "founded", "address", "email", "venue_name", "venue_capacity"]), pd.DataFrame(list_trophies_info).fillna(0)
+    return pd.DataFrame(list_team_info,
+                        columns=["team_id", "league", "name", "founded", "address", "email", "venue_name",
+                                 "venue_capacity"])
 
 
-def parsing_teams_info():
+def parsing_teams_info(bool_data):
     """This function is the general function for getting all basics informations
        :return a dict countries teams representing all teams summary sort by country"""
     countries_teams = {}
@@ -122,6 +129,8 @@ def parsing_teams_info():
     soup = BeautifulSoup(general_website.text, 'lxml')
     list_leagues_url = config.get_leagues(soup)
     for league_url in list_leagues_url:
+        league_url_last_season = league_url[0].rsplit("/", 2)
+        league_url[0] = league_url_last_season[0] + "/20182019/" + league_url_last_season[2]
         teams_informations = {}
         res_league = requests.get(league_url[config.LEAGUE_URL])
         soup = BeautifulSoup(res_league.text, 'lxml')
@@ -129,7 +138,6 @@ def parsing_teams_info():
 
         current_team = 0
         for team_link in teams_links:
-
             # new request
             request_team = requests.get("https://us.soccerway.com/" + team_link)
 
@@ -142,4 +150,4 @@ def parsing_teams_info():
 
             current_team += 1
 
-    return convert_to_dataframe(countries_teams)
+    return convert_to_dataframe(countries_teams, bool_data)

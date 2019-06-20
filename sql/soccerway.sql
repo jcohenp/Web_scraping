@@ -48,10 +48,9 @@ CREATE TABLE `top_players`
 (
   `id_player` int PRIMARY KEY,
   `name` varchar(40),
-  `team` varchar(20),
+  `team_id` int,
   `goals` int,
   `first_goals` int,
-  `team_id` int,
   FOREIGN KEY (team_id) REFERENCES teams_informations(team_id)
 );
 

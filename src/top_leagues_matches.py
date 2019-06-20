@@ -51,11 +51,13 @@ def get_match_info(tr):
     """
     day = tr.find('td', {"class": "day"})
     date = tr.find('td', {"class": "date"})
-    team_a = tr.find('td', {"class": "team-a"})
-    team_b = tr.find('td', {"class": "team-b"})
+    team_a_td = tr.find('td', {"class": "team-a"})
+    team_a = team_a_td.find("a").attrs["title"]
+    team_b_td = tr.find('td', {"class": "team-b"})
+    team_b = team_b_td.find("a").attrs["title"]
     score = tr.find('td', {"class": "score"})
 
-    return [day.text.strip(), date.text.strip(), team_a.text.strip(), team_b.text.strip(), score.text.strip()]
+    return [day.text.strip(), date.text.strip(), team_a, team_b, score.text.strip()]
 
 
 def convert_to_dataframe(dict_leagues_info):
