@@ -1,7 +1,8 @@
+DROP TABLE IF EXISTS `teams_informations`;
 DROP TABLE IF EXISTS `trophies`;
 DROP TABLE IF EXISTS `matches`;
 DROP TABLE IF EXISTS `top_players`;
-DROP TABLE IF EXISTS `teams_informations`;
+
 
 
 CREATE TABLE `teams_informations`
@@ -34,12 +35,13 @@ CREATE TABLE `trophies`
 
 CREATE TABLE `matches`
 (
+  `id_match` int,
   `day` varchar(10),
   `date_match` date,
   `team_a_id` int,
   `team_b_id` int,
   `score` varchar(10),
-  PRIMARY KEY (`date_match`, `team_a_id`, `team_b_id`),
+  PRIMARY KEY (`id_match`),
   FOREIGN KEY (`team_a_id`) REFERENCES teams_informations(team_id),
   FOREIGN KEY (`team_b_id`) REFERENCES teams_informations(team_id)
 );

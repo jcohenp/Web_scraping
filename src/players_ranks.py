@@ -4,6 +4,8 @@ import sys
 import config as config
 import pandas as pd
 
+TABLE_LEN = 15
+
 
 def get_players(league_url, player_id):
     """
@@ -56,7 +58,7 @@ def get_all_top_players_info():
         soup = BeautifulSoup(res_league.text, 'lxml')
         league_players = get_players(soup, player_id)
         dict_top_players_by_league[league_url[config.LEAGUE_NAME]] = league_players
-        player_id += 15
+        player_id += TABLE_LEN
     return make_dict_to_df(dict_top_players_by_league)
 
 

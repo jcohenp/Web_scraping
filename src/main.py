@@ -4,8 +4,9 @@ from teams_informations import parsing_teams_info
 
 import sys
 import argparse
+import os
 
-OPTIONS = ('top_players', 'teams', 'matches', 'all_tables')
+OPTIONS = ['top_players', 'teams', 'matches', 'all_tables']
 
 
 def top_players():
@@ -47,10 +48,12 @@ def all_tables():
 if __name__ == "__main__":
     """The main function - parses arguments."""
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("table", type=str,
-                        help="The command to use",
-                        choices=OPTIONS)
+    if not os.path.exists("../CSV"):
+        os.mkdir("../CSV")
+
+    parser = argparse.ArgumentParser(description='Pick what you want to scrap')
+    parser.add_argument("--table", type=str, help="The command to use",
+                        choices=OPTIONS, default="all_tables")
     args = parser.parse_args()
 
     try:
