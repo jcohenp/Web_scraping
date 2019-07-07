@@ -44,15 +44,19 @@ conn.commit()
 
 with open("CSV/trophies.csv", encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
+
     for row in reader:
+
         cur.execute("select team_id from teams_informations where team_id = \"" + row["team_id"] + "\";")
         team_id = cur.fetchall()
-        values = [team_id, row["Premier League"], row["League Cup"], row["UEFA Champions League"],
-                  row["Bundesliga"], row["Super Cup"], row["Serie A"], row["La Liga"], row["Ligue 1"],
-                  row["Coupe de France"]]
-        cur.execute("INSERT INTO trophies (team_id, Premier_League, League_Cup, UEFA_Champions_League, Bundesliga, "
-                    "Super_Cup, Serie_A, La_Liga, Ligue_1, Coupe_de_France) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", values)
+
+        championships = int(row["Premier League"]) + int(row["Bundesliga"]) + int(row["Serie A"]) + int(row["La Liga"]) + int(row["Ligue 1"])
+        cups = int(row["League Cup"]) + int(row["Super Cup"]) + int(row["Coupe de France"])
+        UEFA_Champions_League = row["UEFA Champions League"]
+
+        values = [team_id, championships, cups, UEFA_Champions_League]
+        cur.execute("INSERT INTO trophies (team_id, championships, cups, UEFA_Champions_League) VALUES "
+                    "(%s, %s, %s, %s)", values)
 conn.commit()
 
 

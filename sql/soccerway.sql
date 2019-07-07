@@ -20,15 +20,9 @@ CREATE TABLE `teams_informations`
 CREATE TABLE `trophies`
 (
   `team_id` int PRIMARY KEY,
-  `Premier_League` int,
-  `League_Cup` int,
+  `championships` int,
+  `cups` int,
   `UEFA_Champions_League` int,
-  `Bundesliga` int,
-  `Super_Cup` int,
-  `Serie_A` int,
-  `La_Liga` int,
-  `Ligue_1` int,
-  `Coupe_de_France` int,
   FOREIGN KEY (`team_id`) REFERENCES teams_informations(`team_id`)
 );
 
