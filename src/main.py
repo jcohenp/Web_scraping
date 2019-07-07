@@ -55,9 +55,9 @@ if __name__ == "__main__":
     parser.add_argument("--table", type=str, help="The command to use",
                         choices=OPTIONS, default="all_tables")
     args = parser.parse_args()
-
+    print(args)
     try:
-        print(locals()[args.table]())
+        locals()[args.table]()
     except ValueError:
         print("only one of the options!")
         sys.exit()
