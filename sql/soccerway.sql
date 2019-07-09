@@ -41,7 +41,7 @@ CREATE TABLE `matches`
 CREATE TABLE `top_players`
 (
   `id_player` int PRIMARY KEY,
-  `name` varchar(40),
+  `name` varchar(60),
   `team_id` int,
   `goals` int,
   `first_goals` int,

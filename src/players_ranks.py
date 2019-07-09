@@ -28,13 +28,14 @@ def get_player_info(tr, player_id):
     :param tr: a line in players table
     :return: the relevant information on that player
     """
-    player = tr.find('td', {"class": "player"})
+    player_href = tr.find('td', {"class": "player"})
+    player = player_href.contents[0].attrs["href"].split("/")[2].replace("-", " ")
     team_td = tr.find('td', {"class": "team"})
     team = team_td.find("a").attrs["title"]
     number_goals = tr.find('td', {"class": "number goals"})
     first_goals = tr.find('td', {"class": "number first-goals"})
 
-    return [player_id, player.text.strip(), team, number_goals.text.strip(), first_goals.text.strip()]
+    return [player_id, player, team, number_goals.text.strip(), first_goals.text.strip()]
 
 
 def get_all_top_players_info():
