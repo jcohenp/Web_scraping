@@ -10,6 +10,7 @@ MATCHES_LEAGUES = ["Premier League", "Bundesliga", "Serie A", "La Liga", "Ligue 
 LIST_TOTAL_WEEKS_PER_LEAGUE = [38, 34, 37, 38, 38]
 COMP_ID = -2
 THE_R = -2
+LEAGUE_CODE = ["BL1", "PL", "FL1", "SA", "PD"]
 
 
 # [functions]
