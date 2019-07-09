@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `teams_informations`;
 DROP TABLE IF EXISTS `trophies`;
 DROP TABLE IF EXISTS `matches`;
 DROP TABLE IF EXISTS `top_players`;
-
+DROP TABLE IF EXISTS `players_from_api`;
 
 CREATE TABLE `teams_informations`
 (
@@ -48,3 +48,14 @@ CREATE TABLE `top_players`
   FOREIGN KEY (team_id) REFERENCES teams_informations(team_id)
 );
 
+CREATE TABLE `players_from_api`
+(
+  `team_id` int PRIMARY KEY,
+  `league` varchar(20),
+  `name` varchar(50),
+  `founded` int,
+  `address` varchar(255),
+  `email` varchar(50),
+  `venue_name` varchar(50),
+  `venue_capacity` int
+);
