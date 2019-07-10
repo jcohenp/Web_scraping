@@ -3,6 +3,7 @@ import json
 import time
 import csv
 import config as config
+import unidecode
 
 
 def request_football_data_api(csv_path):
@@ -25,7 +26,7 @@ def request_football_data_api(csv_path):
             name = team["name"]
             short_name = team["shortName"]
             for players in team["squad"]:
-                dict_player = {"id": players["id"], "name": players["name"], "position": players["position"],
+                dict_player = {"id": players["id"], "name": unidecode.unidecode(players["name"]), "position": players["position"],
                                "nationality": players["nationality"],
                                "role": players["role"] if players["role"] == "PLAYER" else None, "team_name": name, "short_team_name": short_name}
                 players_info.append(dict_player)
@@ -37,4 +38,4 @@ def request_football_data_api(csv_path):
         dict_writer.writeheader()
         dict_writer.writerows(players_info)
 
-#request_football_data_api("../CSV/players_info_from_api_new.csv")
+request_football_data_api("../CSV/players_info_from_api_new.csv")

@@ -89,12 +89,14 @@ if os.path.isfile("CSV/top_player_info.csv"):
                         "%s, %s)", values)
     conn.commit()
 
-if os.path.isfile("CSV/players_info_from_api.csv"):
+if os.path.isfile("CSV/players_info_from_api_new.csv"):
     cur.execute("select max(id_player) from top_players;")
     number_player = cur.fetchall()[0][0] + 1
     cur.execute("select max(team_id) from teams_informations;")
     team_number = cur.fetchall()[0][0] + 1
-    with open("CSV/players_info_from_api.csv", encoding='utf-8') as csvfile:
+    count = 0
+
+    with open("CSV/players_info_from_api_new.csv", encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for i, row in enumerate(reader):
             if row["role"] == "PLAYER":
@@ -104,18 +106,29 @@ if os.path.isfile("CSV/players_info_from_api.csv"):
                     cur.execute('SELECT team_id from teams_informations where name LIKE "%' + row["short_team_name"] + '%";')
                     team_id = cur.fetchall()
                     if len(team_id) == 0:
-                        print(row["team_name"])
                         cur.execute('SELECT team_id from teams_informations WHERE "' + row["team_name"] + '" LIKE CONCAT("%", name, "%");')
                         team_id = cur.fetchall()
                         if len(team_id) == 0:
                             team_id = team_number + i
 
+                if "-" in row["name"]:
+                    row["name"] = row["name"].replace("-", " ")
 
-                cur.execute('SELECT id_plqyer from top_players where name = "' + row["name"] + '";')
+                cur.execute('SELECT id_player from top_players where name = "' + row["name"] + '";')
+                player_id = cur.fetchall()
 
+                if len(player_id) == 0:
+                    cur.execute('SELECT id_player from top_players where name LIKE "%' + row["name"] + '%";')
+                    player_id = cur.fetchall()
+                    if len(player_id) == 0:
+                        player_id = number_player + i
+                if type(player_id) != int:
+                    player_id = player_id[0][0]
+                print(player_id)
+            values = [player_id, team_id, row["name"], row["position"], row["nationality"]]
+            cur.execute("INSERT INTO players_from_api (id_player, team_id, player_name, player_position, nationality) "
+                        "VALUES (%s, %s, %s, %s, %s)", values)
+    conn.commit()
 
-            #values = [number_player + i, team_id, row["name"], row["position"], row["nationality"], row["role"]]
-            #cur.execute("INSERT INTO")
 
 cur.close()
-#name,position,nationality,role,team_name,short_team_name
