@@ -48,14 +48,15 @@ CREATE TABLE `top_players`
   FOREIGN KEY (team_id) REFERENCES teams_informations(team_id)
 );
 
+
 CREATE TABLE `players_from_api`
 (
-  `team_id` int PRIMARY KEY,
-  `league` varchar(20),
-  `name` varchar(50),
-  `founded` int,
-  `address` varchar(255),
-  `email` varchar(50),
-  `venue_name` varchar(50),
-  `venue_capacity` int
+  id_player int PRIMARY KEY,
+  team_id int,
+  player_name varchar(50),
+  player_position varchar(20),
+  nationality varchar(20),
+  role varchar(20),
+  FOREIGN KEY (id_player) REFERENCES top_players(id_player),
+  FOREIGN KEY (team_id) REFERENCES teams_informations(team_id)
 );

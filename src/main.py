@@ -57,8 +57,8 @@ if __name__ == "__main__":
                         choices=OPTIONS, default="all_tables")
     args = parser.parse_args()
     print(args)
-    if args.table != "matches":
-        request_football_data_api("../CSV/players_info_from_api.csv")
+    #if args.table != "matches":
+    #    request_football_data_api("../CSV/players_info_from_api.csv")
 
     try:
         locals()[args.table]()
