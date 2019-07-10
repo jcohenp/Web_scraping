@@ -55,8 +55,5 @@ CREATE TABLE `players_from_api`
   team_id int,
   player_name varchar(50),
   player_position varchar(20),
-  nationality varchar(20),
-  role varchar(20),
-  FOREIGN KEY (id_player) REFERENCES top_players(id_player),
-  FOREIGN KEY (team_id) REFERENCES teams_informations(team_id)
+  nationality varchar(40)
 );

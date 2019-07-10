@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import sys
 import config as config
 import pandas as pd
+import unidecode
 
 TABLE_LEN = 15
 
