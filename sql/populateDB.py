@@ -102,7 +102,7 @@ if os.path.isfile("CSV/players_info_from_api_new.csv"):
             if row["role"] == "PLAYER":
                 cur.execute('SELECT team_id from teams_informations WHERE name = "' + row["team_name"] + '" or name = "' + row["short_team_name"] + '";')
                 team_id = cur.fetchall()
-                if len(team_id) == 0 :
+                if len(team_id) == 0:
                     cur.execute('SELECT team_id from teams_informations where name LIKE "%' + row["short_team_name"] + '%";')
                     team_id = cur.fetchall()
                     if len(team_id) == 0:
@@ -110,6 +110,8 @@ if os.path.isfile("CSV/players_info_from_api_new.csv"):
                         team_id = cur.fetchall()
                         if len(team_id) == 0:
                             team_id = team_number + i
+                        else:
+                            team_id = team_id[0][0]
 
                 if "-" in row["name"]:
                     row["name"] = row["name"].replace("-", " ")
@@ -118,16 +120,17 @@ if os.path.isfile("CSV/players_info_from_api_new.csv"):
                 player_id = cur.fetchall()
 
                 if len(player_id) == 0:
-                    cur.execute('SELECT id_player from top_players where name LIKE "%' + row["name"] + '%";')
+                    cur.execute('SELECT id_player from top_players where name LIKE "%' + row["name"] +
+                                '%" and team_id = "' + str(team_id) + '";')
                     player_id = cur.fetchall()
                     if len(player_id) == 0:
                         player_id = number_player + i
-                if type(player_id) != int:
-                    player_id = player_id[0][0]
+                    else:
+                        player_id = player_id[0][0]
                 print(player_id)
-            values = [player_id, team_id, row["name"], row["position"], row["nationality"]]
-            cur.execute("INSERT INTO players_from_api (id_player, team_id, player_name, player_position, nationality) "
-                        "VALUES (%s, %s, %s, %s, %s)", values)
+                values = [player_id, team_id, row["name"], row["position"], row["nationality"]]
+                cur.execute("INSERT INTO players_from_api (id_player, team_id, player_name, player_position, nationality) "
+                            "VALUES (%s, %s, %s, %s, %s)", values)
     conn.commit()
 
 

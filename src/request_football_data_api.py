@@ -17,7 +17,6 @@ def request_football_data_api(csv_path):
         league = json.loads(connection.getresponse().read().decode())
 
         for i, teams in enumerate(league["teams"]):
-
             id = teams["id"]
             connection.request('GET', '/v2/teams/' + str(id), None, headers)
             if i % 8 == 0 and i != 0:
@@ -38,4 +37,4 @@ def request_football_data_api(csv_path):
         dict_writer.writeheader()
         dict_writer.writerows(players_info)
 
-request_football_data_api("../CSV/players_info_from_api_new.csv")
+# request_football_data_api("../CSV/players_info_from_api_new.csv")
